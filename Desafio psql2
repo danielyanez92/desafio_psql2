@@ -1,0 +1,101 @@
+
+danielyanez=# CREATE DATABASE call_list;
+CREATE DATABASE
+danielyanez=# \c call_list 
+You are now connected to database "call_list" as user "danielyanez".
+call_list=# ^C
+call_list=# 
+call_list=# CREATE TABLE users(
+id SERIAL PRiMARY KEY,
+first_name varchar(50),
+email varchar(50));
+CREATE TABLE
+call_list=# INSERT INTO users(first_name,email) VALUES ('Carlos','carlitos@gmail.com');
+INSERT 0 1
+call_list=# INSERT INTO users(first_name,email) VALUES ('Laura','lau93@gmail.com');
+INSERT 0 1
+call_list=# CREATE TABLE calls(
+id SERIAL PRIMARY KEY,
+phone VARCHAR(10),
+date varchar(10),
+user_id INTEGER REFERENCES users(id),
+length INTEGER);
+CREATE TABLE
+call_list=# 
+call_list=# ALTER TABLE users ADD COLUMN last_name varchar(50);
+ALTER TABLE
+call_list=# 
+call_list=# UPDATE users SET last_name='Motumbo' WHERE first_name='Carlos';
+UPDATE 1
+call_list=# UPDATE users SET last_name='Gaucho' WHERE first_name='Laura';
+UPDATE 1
+call_list=# 
+call_list=# INSERT INTO calls (id,phone,date,user_id,length) VALUES (
+1,'76898756','04-02-1992',2,6);
+ERROR:  duplicate key value violates unique constraint "calls_pkey"
+DETAIL:  Key (id)=(1) already exists.
+call_list=# INSERT INTO calls (phone,date,user_id,length) VALUES ('76898756','04-02-1992',2,6);
+ERROR:  duplicate key value violates unique constraint "calls_pkey"
+DETAIL:  Key (id)=(1) already exists.
+call_list=# INSERT INTO calls (id,phone,date,user_id,length) VALUES (2,'76898756','04-02-1992',2,6);
+INSERT 0 1
+call_list=# INSERT INTO calls (id,phone,date,user_id,length) VALUES (
+3,'985925647','06-03-1997',2,3);
+INSERT 0 1
+call_list=# INSERT INTO calls (id,phone,date,user_id,length) VALUES (
+4,'985925647','06-03-2002',2,1);
+INSERT 0 1
+call_list=# INSERT INTO calls (id,phone,date,user_id,length) VALUES (
+5,'984797450','07-05-2012',2,1);
+INSERT 0 1
+call_list=# INSERT INTO calls (id,phone,date,user_id,length) VALUES (
+6,'984797453','12-05-2017',2,9);
+INSERT 0 1
+call_list=# INSERT INTO calls (id,phone,date,user_id,length) VALUES (
+7,'965784329','14-10-2012',1,4);
+INSERT 0 1
+call_list=# INSERT INTO calls (id,phone,date,user_id,length) VALUES (
+8,'961234329','12-09-2015',1,1);
+INSERT 0 1
+call_list=# INSERT INTO calls (id,phone,date,user_id,length) VALUES (
+8,'961235642','09-02-2018',1,8);
+ERROR:  duplicate key value violates unique constraint "calls_pkey"
+DETAIL:  Key (id)=(8) already exists.
+call_list=# INSERT INTO calls (id,phone,date,user_id,length) VALUES (
+9,'961235642','09-02-2018',1,8);
+INSERT 0 1
+call_list=# INSERT INTO calls (id,phone,date,user_id,length) VALUES (
+10,'874635642','30-01-2017',1,4);
+call_list=# INSERT INTO users(first_name,email,last_name) VALUES ('johnny','jonnyeltalento@gmail.com','eltalento');
+INSERT 0 1
+call_list=# SELECT first_name,count(user_id) FROM users INNER JOIN calls ON(users.id=calls.user_id) GROUP BY first_name;
+call_list=# SELECT first_name FROM users INNER JOIN calls ON(users.id=calls.user_id) GROUP BY first_name ORDER BY count(user_id) DESC LIMIT 1;
+ first_name 
+------------
+ Laura
+(1 row)
+call_list=# SELECT first_name, calls.date FROM users INNER JOIN calls ON(users.id=calls.user_id) WHERE first_name='Carlos' ORDER BY date;
+ first_name |    date    
+------------+------------
+ Carlos     | 09-02-2018
+ Carlos     | 12-09-2015
+ Carlos     | 14-10-2012
+ Carlos     | 30-01-2017
+(4 rows)
+call_list=# SELECT first_name FROM users INNER JOIN calls ON(users.id=calls.user_id) ORDER BY length LIMIT 1;
+ first_name 
+------------
+ Laura
+(1 row)
+call_list=# SELECT first_name, SUM(length) FROM users INNER JOIN calls ON(users.id=calls.user_id)GROUP BY first_name;
+ first_name | sum 
+------------+-----
+ Carlos     |  17
+ Laura      |  25
+call_list=# SELECT first_name FROM users INNER JOIN calls ON(users.id=calls.user_id) GROUP BY first_name HAVING count(*)>=5;
+ first_name 
+------------
+ Laura
+(1 row)
+
+
